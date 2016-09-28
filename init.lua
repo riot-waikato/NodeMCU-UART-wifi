@@ -8,9 +8,16 @@ dofile("OpenSend.lua")
 function list() dofile("list.lua") end
 function globals() dofile("globals.lua") end
 
-function connect_send(sck) sock:send("test 0x00 4214 9 8 7 6 5 4 3 2 1.23456789\n") end 
+function registerwifi() dofile("connectman.lua") end
 
-function get_ip() hostip = '172.24.42.1' end --dofile("get_ip.lua") end
+function deregisterwifi() 
+   tmr.stop(1)
+   tmr.stop(0)
+end
+
+function connect_send(sck) sck:send("test 0x00 4214 9 8 7 6 5 4 3 2 1.23456789\n") end 
+
+function get_ip() ip, nm, hostip = wifi.sta.getip() end --'172.24.42.1' end --dofile("get_ip.lua") end
 function help()
    bak=fileToPrint
    fileToPrint='help.txt'
@@ -28,7 +35,7 @@ function sendman()
    if hostip == nil then
       print("test")
       sendManagerFlag = nil
-       tmr.unregister(0)
+      tmr.unregister(0)
       do return end
    else
       sendManagerFlag = 1

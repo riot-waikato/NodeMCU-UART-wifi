@@ -6,3 +6,5 @@
 -->     get_ip()
 -->     connectWifi()
 -->     sendtest()
+-->     sendman()
+-->     timerman()
