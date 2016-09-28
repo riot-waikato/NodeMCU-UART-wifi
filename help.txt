@@ -1,0 +1,8 @@
+--> Functions
+-->     list()	
+-->	printfile(str)
+-->	globals()
+-->	help()
+-->     get_ip()
+-->     connectWifi()
+-->     sendtest()
