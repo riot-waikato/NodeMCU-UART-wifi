@@ -1,6 +1,6 @@
 function sendtest()
    if wifi.sta.status() == 5 then
-      print(node.heap())
+--      print(node.heap())
       get_ip()
       if hostip ~= nil then
          sock = net.createConnection(net.TCP, 0)
@@ -11,9 +11,9 @@ function sendtest()
       else
          print("ip address is null")
       end
-      print(node.heap())
+--      print(node.heap())
       collectgarbage()
-      print(node.heap())
+--      print(node.heap())
    else
       print("wifi not ready")
    end

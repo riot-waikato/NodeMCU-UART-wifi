@@ -1,4 +1,3 @@
---set up all functions
 function pad(str, len, char)
     if char == nil then char = ' ' end
     return str .. string.rep(char, len - #str)
@@ -9,20 +8,43 @@ function list() dofile("list.lua") end
 function globals() dofile("globals.lua") end
 
 function registerwifi() dofile("connectman.lua") end
+function registeruart() 
+   --uncomment to use altarnate UART pins (gpio13/15)
+   --uart.alt(1)
 
+   --see if manually configuring uart params helps at all
+   uart.setup(0, 9600, 8, uart.PARITY_NONE, uart.STOPBITS_1, 0)
+
+   registerwifi()
+   uart_slave()
+end
 function deregisterwifi() 
    tmr.stop(1)
    tmr.stop(0)
 end
 
-function connect_send(sck) sck:send("test 0x00 4214 9 8 7 6 5 4 3 2 1.23456789\n") end 
-
+function set_packet(_str) packet = _str:sub(1, -2).."\n" end
+packet="test 0x01 2442 1 2 3 4 5 6 5 4 3.14252142\n"
+function connect_send(sck) sck:send(packet) end 
+chk=0
+ready=1
 function get_ip() ip, nm, hostip = wifi.sta.getip() end --'172.24.42.1' end --dofile("get_ip.lua") end
+
 function help()
    bak=fileToPrint
    fileToPrint='help.txt'
    printfile(fileToPrint)
    fileToPrint=bak
+end
+
+function uart_slave()
+   chk=1
+   uart.on("data", "$",
+     function(data)       
+       set_packet(data)
+       ready=1
+       collectgarbage()  
+   end, 0)
 end
 
 function timerman()
@@ -33,13 +55,21 @@ end
 function sendman()
    get_ip()
    if hostip == nil then
-      print("test")
+      print("-chk")
       sendManagerFlag = nil
       tmr.unregister(0)
       do return end
    else
       sendManagerFlag = 1
-      sendtest()
+      if chk == 1 then
+      print("+chk")
+        if ready == 1 then
+	  sendtest()
+	  ready=0
+	end
+      else
+        sendtest()
+      end
    end
 end
 
@@ -58,3 +88,6 @@ list()
 printfile()
 
 print()
+
+connectWifi()
+registeruart()
