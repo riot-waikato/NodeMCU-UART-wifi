@@ -42,6 +42,12 @@ function uart_slave()
    uart.on("data", "$",
      function(data)       
        set_packet(data)
+       --check if wifi connected
+       if wifi.sta.status() == 5 then --have ip, connected
+         print("+")
+       else
+	 print("-")
+       end
        ready=1
        collectgarbage()  
    end, 0)
@@ -55,14 +61,14 @@ end
 function sendman()
    get_ip()
    if hostip == nil then
-      print("-chk")
+      --print("-chk")
       sendManagerFlag = nil
       tmr.unregister(0)
       do return end
    else
       sendManagerFlag = 1
       if chk == 1 then
-      print("+chk")
+      --print("+chk")
         if ready == 1 then
 	  sendtest()
 	  ready=0
