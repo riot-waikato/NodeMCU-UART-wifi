@@ -24,10 +24,15 @@ function deregisterwifi()
 end
 
 function set_packet(_str) packet = _str:sub(1, -2).."\n" end
+function set_packet_lux(_str) 
+  sec, usec = rtctime.get()
+  packet = _str:sub(1, -2).."1"..sec.."\n" --packet structure for lux: 
+end
+
 packet="test 0x01 2442 1 2 3 4 5 6 5 4 3.14252142\n"
 function connect_send(sck) sck:send(packet) end 
 chk=0
-ready=1
+ready=0
 function get_ip() ip, nm, hostip = wifi.sta.getip() end --'172.24.42.1' end --dofile("get_ip.lua") end
 
 function help()
@@ -41,14 +46,15 @@ function uart_slave()
    chk=1
    uart.on("data", "$",
      function(data)       
-       set_packet(data)
+       set_packet_lux(data)
        --check if wifi connected
-       if wifi.sta.status() == 5 then --have ip, connected
+       if wifi.sta.status() == 5 and wifi.sta.getrssi() > -75 then --have ip, connected, rssi doesn't look too awful
+         if synced == 0 then timesync() end
          print("+")
+         ready=1
        else
 	 print("-")
-       end
-       ready=1
+       end       
        collectgarbage()  
    end, 0)
 end
