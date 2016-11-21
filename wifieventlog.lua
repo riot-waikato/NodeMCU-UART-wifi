@@ -1,5 +1,11 @@
-log = nil		-- File pointer
-log_name = "wifilog"	-- Name of the log file
+--[[
+Opens a log file and registers callbacks when wifi events occur.  Each time a wifi event occurs any information given in the table (T) returned by the event will be logged.
+
+Dependencies: NodeMCU wifi.eventmon module
+]]--
+
+log = nil			-- File pointer
+log_name = "wifieventlog"	-- Name of the log file
 
 -- Opens a log file for appending.
 function openLogFile()
@@ -7,14 +13,16 @@ local file, err_mess = io.open(log_name, "a")
 if file == null then
     print(err_mess)
 else
-    log = file
+    log = file	-- Store file descriptor
     print("Log file opened: "..log_name)
 end	-- if
 end	-- function openLogFile
 
--- Registers all wifi event callbacks with functions that write to the log file
+-- Registers all wifi event callbacks with functions that write to the log file.
+-- See example code: https://nodemcu.readthedocs.io/en/master/en/modules/wifi/#wifieventmonregister
 function registerEvents()
-if log ~= nil then -- cannot register callbacks if no log file is open
+-- cannot register callbacks if log is not open
+if log ~= nil then
     wifi.eventmon.register(wifi.eventmon.STA_CONNECTED, function(T) 
         log:write("\n\tSTA - CONNECTED".."\n\tSSID: "..T.SSID.."\n\tBSSID: "..
         T.BSSID.."\n\tChannel: "..T.channel)
