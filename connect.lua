@@ -1,4 +1,6 @@
-ssid_pattern = ""
+--[[The ssid_pattern cannot contain escaped '-' characters.  So the pattern must stop at 'riot'.]]
+ssid_pattern = "riot"
+available = {}	-- list of our APs
 
 --From https://learn.adafruit.com/adafruit-huzzah-esp8266-breakout/using-nodemcu-lua
 --[[a callback function to receive the AP table when the scan is done. This function receives a table, the key is the BSSID, the value is other info in format: SSID, RSSID, auth mode, channel.
@@ -9,11 +11,15 @@ function listap(t)
     for ssid,v in pairs(t) do
         local authmode, rssi, bssid, channel = string.match(v, "([^,]+),([^,]+),([^,]+),([^,]+)")
         print(string.format("%32s",ssid).."\t"..bssid.."\t  "..rssi.."\t\t"..authmode.."\t\t\t"..channel)
-    end
-end	-- function listap
 
-function matchSSIDPattern(p)
-end	-- function matchSSIDPattern
+        -- Store SSIDs that match the pattern of our IoT devices.
+        --print(ssid.." "..ssid_pattern)
+        --print(string.find(ssid, ssid_pattern))
+        if string.find(ssid, ssid_pattern) then table.insert(available, ssid) end
+    end
+    print("IoT access points:")
+    for i = 1, #available do print(available[i]) end
+end	-- function listap
 
 wifi.setmode(wifi.STATION)
 
