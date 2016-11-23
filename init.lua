@@ -90,9 +90,15 @@ function printfile(str)
     dofile("printfile.lua")
 end
 
-wific='wific'
-wifiwifi='wifiwifi'
-function connectWifi() dofile("connect.lua") end
+function connectWifi() dofile("wifiapscan.lua") end
+
+function initWifiMonitor()
+    dofile("wifieventmon.lua")
+    dofile("wifistatemon.lua")
+end
+
+print("Boot reason...")
+print(node.bootreason())
 
 --produce standard output
 print("\n--> Files contained:")
@@ -101,5 +107,6 @@ printfile()
 
 print()
 
+initWifiMonitor()
 connectWifi()
 registeruart()
