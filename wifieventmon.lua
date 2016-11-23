@@ -1,3 +1,5 @@
+dofile("wifistatusvalues.lua")
+
 -- Registers all wifi event callbacks with functions that write to the log file
 function registerEvents()
     wifi.eventmon.register(wifi.eventmon.STA_CONNECTED, function(T) 
@@ -7,7 +9,7 @@ function registerEvents()
 
     wifi.eventmon.register(wifi.eventmon.STA_DISCONNECTED, function(T) 
         print(rtctime.get().."\n\tSTA - DISCONNECTED".."\n\tSSID: "..T.SSID.."\n\tBSSID: "..
-        T.BSSID.."\n\treason: "..T.reason)
+        T.BSSID.."\n\treason: "..dcreason_tostr(T.reason))
     end)
 
     wifi.eventmon.register(wifi.eventmon.STA_AUTHMODE_CHANGE, function(T) 

@@ -2,6 +2,8 @@
 Contains callback functions that occur when the Wifi station status of this device changes.
 ]]
 
+dofile("OpenSend.lua")
+
 function on_sta_idle()
     print("STATION_IDLE")
 end
@@ -24,6 +26,11 @@ end
 
 function on_sta_gotip()
     print("STATION_GOT_IP")
+
+    -- sync time
+    if synced == 0 then
+        timesync()
+    end
 end
 
 

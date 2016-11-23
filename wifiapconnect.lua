@@ -4,6 +4,7 @@
 local ssid_pattern = "riot"
 local available	-- list of our APs
 local password = "riotwaikato"
+local minrssi = -70	-- minimum signal strength considered acceptable
 
 
 --[[Prints a nicely formatted list of the table provided by getap().  This handles the new
@@ -43,7 +44,12 @@ local function do_onscancomplete(t)
 
         -- Store SSIDs that match the pattern of our IoT devices.
         if string.find(ssid, ssid_pattern) then
-            available[bssid] = ssid
+
+            if tonumber(rssi) > minrssi then
+                available[bssid] = ssid
+            else
+                print("Signal strength of "..ssid.. " too poor to connect...")
+            end
         end
     end
     
@@ -81,7 +87,6 @@ end
     random AP out of those available.
     ]]
 function chooseavailableap()
-    print("Starting function")
     local apset = {}
     local count = 0
     for bssid, ssid in pairs(available) do
