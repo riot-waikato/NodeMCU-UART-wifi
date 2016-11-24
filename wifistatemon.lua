@@ -14,6 +14,15 @@ end
 
 function on_sta_wrongpwd()
     print("STATION_WRONG_PASSWORD")
+
+    --Remove AP that device doesn't have correct password for
+    local ssid, password, bssid_set, bssid = wifi.sta.getconfig()
+    available[bssid] = nil
+
+    printmatchingaps()
+
+    --Choose again from remaining available APs
+    chooseavailableap()
 end
 
 function on_sta_apnotfound()
@@ -29,7 +38,9 @@ function on_sta_gotip()
     print("Wifi connection established...")
     
     dofile("wifisend.lua")
+    timesync()
     sendpacket()	-- sends a test packet
+    
 end
 
 

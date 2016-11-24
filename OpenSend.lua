@@ -17,6 +17,7 @@ synced=0
 function timesync()
     get_ip()
     if hostip ~= nil and synced == 0 then
+         print("Getting time...")
          timesock = net.createConnection(net.TCP, 0)
          timesock:on("receive", function(s, data) settime(data) end)
              --wait for connection before sending   	     	     

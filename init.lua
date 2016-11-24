@@ -44,6 +44,8 @@ printfile()
 
 print()
 
+dofile("OpenSend.lua")
+
 --wifi setup
 wifi.setmode(wifi.STATION)
 initWifiMonitor()

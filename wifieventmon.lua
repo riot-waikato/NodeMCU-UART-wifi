@@ -1,15 +1,30 @@
+
+--[[Examine the disconnection reason and respond appropriately.]]
+function handledc(reason)
+
+    -- Scan for APs and start process again
+    if reason == wifi.eventmon.reason.NO_AP_FOUND then
+        wifiscan()
+    end
+
+end
+
 dofile("wifistatusvalues.lua")
 
 -- Registers all wifi event callbacks with functions that write to the log file
-function registerEvents()
+function registerevents()
     wifi.eventmon.register(wifi.eventmon.STA_CONNECTED, function(T) 
         print(rtctime.get().."\n\tSTA - CONNECTED".."\n\tSSID: "..T.SSID.."\n\tBSSID: "..
         T.BSSID.."\n\tChannel: "..T.channel)
+
+    retries = 0 --clear the unsuccessful retry attempts
     end)
 
     wifi.eventmon.register(wifi.eventmon.STA_DISCONNECTED, function(T) 
         print(rtctime.get().."\n\tSTA - DISCONNECTED".."\n\tSSID: "..T.SSID.."\n\tBSSID: "..
         T.BSSID.."\n\treason: "..dcreason_tostr(T.reason))
+
+        handledc(T.reason)
     end)
 
     wifi.eventmon.register(wifi.eventmon.STA_AUTHMODE_CHANGE, function(T) 
@@ -26,20 +41,6 @@ function registerEvents()
         print(rtctime.get().."\n\tSTA - DHCP TIMEOUT")
     end)
 
---[[    wifi.eventmon.register(wifi.eventmon.AP_STACONNECTED, function(T) 
-        print("\n\tAP - STATION CONNECTED".."\n\tMAC: "..T.MAC.."\n\tAID: "..T.AID)
-    end)
-]]
-
---[[    wifi.eventmon.register(wifi.eventmon.AP_STADISCONNECTED, function(T) 
-        print(rtctime.get().."\n\tAP - STATION DISCONNECTED".."\n\tMAC: "..T.MAC.."\n\tAID: "..T.AID)
-    end)
-]]
-
-    --[[wifi.eventmon.register(wifi.eventmon.AP_PROBEREQRECVED, function(T) 
-        print(rtctime.get().."\n\tAP - PROBE REQUEST RECEIVED".."\n\tMAC: ".. T.MAC.."\n\tRSSI: "..T.RSSI)
-    end)
-]]
 end	-- function registerEvents
 
-registerEvents()
+registerevents()

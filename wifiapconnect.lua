@@ -2,17 +2,18 @@
     NOTE: Currently, using an escaped '-' dash character such as: riot\-waikato means that the
     phrase does not get matched.]]
 local ssid_pattern = "riot"
-local available	-- list of our APs
+available = {} -- list of our APs, needed in other wifi files
 local password = "riotwaikato"
 local minrssi = -70	-- minimum signal strength considered acceptable
-
+local retryinterval = 5000 -- interval between scans for APs when no AP was found
+local wifitmr = 3
+wifiretries = 0
 
 --[[Prints a nicely formatted list of the table provided by getap().  This handles the new
     version of the table.
     ]]
 function printaps(t)
     print("Available access points:")
-    print("\n"..string.format("%32s","SSID").."\tBSSID\t\t\t\t  RSSI\t\tAUTHMODE\tCHANNEL")
     print("\n\t\t\tSSID\t\t\t\t\tBSSID\t\t\t  RSSI\t\tAUTHMODE\t\tCHANNEL")
     for bssid,v in pairs(t) do
         local ssid, rssi, authmode, channel = string.match(v, "([^,]+),([^,]+),([^,]+),([^,]*)")
@@ -89,6 +90,8 @@ end
 function chooseavailableap()
     local apset = {}
     local count = 0
+
+    --count available APs
     for bssid, ssid in pairs(available) do
         count = count + 1
         apset[count] = bssid
@@ -98,6 +101,12 @@ function chooseavailableap()
         select = math.random(1, count)
     elseif count > 0 then
         select = 1
+    elseif count == 0 then
+        print("No RIOT access points found...")
+        --start retry timer
+        tmr.alarm(wifitmr, retryinterval, tmr.ALARM_SINGLE, function() wifiscan() end)
+        wifiretries = wifiretries + 1
+        return
     end
 
     print("Connecting to access point: "..available[apset[select]])
@@ -116,8 +125,15 @@ end
     ]]
 function get_ip() ip, nm, hostip = wifi.sta.getip() end
 
+function wifiscan()
+    if wifiretries > 0 then
+        print("Attempt "..wifiretries)
+    end
+    print("Scanning for Wifi APs...")
+    wifi.sta.getap(1, do_onscancomplete)
+end
+
 wifi.setmode(wifi.STATION)
 
 -- Scan for Wifi APs. Use the newer format of AP table.
-print("Scanning access points...")
-wifi.sta.getap(1, do_onscancomplete)
+wifiscan()
