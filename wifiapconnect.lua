@@ -110,6 +110,12 @@ function chooseavailableap()
     end
 end
 
+
+
+--[[Get ip, netmask and gateway address.
+    ]]
+function get_ip() ip, nm, hostip = wifi.sta.getip() end
+
 wifi.setmode(wifi.STATION)
 
 -- Scan for Wifi APs. Use the newer format of AP table.

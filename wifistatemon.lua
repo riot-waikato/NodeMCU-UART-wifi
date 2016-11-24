@@ -26,11 +26,10 @@ end
 
 function on_sta_gotip()
     print("STATION_GOT_IP")
-
-    -- sync time
-    if synced == 0 then
-        timesync()
-    end
+    print("Wifi connection established...")
+    
+    dofile("wifisend.lua")
+    sendpacket()	-- sends a test packet
 end
 
 
