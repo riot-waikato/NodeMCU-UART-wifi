@@ -9,6 +9,55 @@ local minrssi = -70		-- minimum signal strength considered acceptable
 local ssid_pattern = "riot%-waikato"
 local bssidlist = nil	-- contains approved BSSIDs as keys with value true
 
+local selector = selectionscheme.bestsignal
+
+retryinterval = 5000	-- interval between scans for APs when no AP was found
+
+local password = "riotwaikato"
+
+
+selectionscheme = {}
+
+selectionscheme.random = function()
+    local apset = {}	-- an array of AP BSSIDs
+    local count = 0
+
+    --get list of BSSIDs from available (and count them)
+    for bssid, v in pairs(available) do
+        count = count + 1
+        apset[count] = bssid
+    end
+
+    if count > 1 then
+        --select randomly
+        select = math.random(1, count)
+    elseif count == 1 then
+        --select only AP available
+        select = 1
+    elseif count == 0 then
+        print("No RIOT access points found...")
+        --start retry timer
+        tmr.alarm(wifitmr, retryinterval, tmr.ALARM_SINGLE, wifiscan)
+        wifiretries = wifiretries + 1
+        return nil
+    end
+
+    return apset[select]
+end
+
+selectionscheme.bestsignal = function()
+    local bestrssi = minrssi
+    local bestbssid = nil
+    for bssid, v in pairs(available) do
+        if v.rssi > bestrssi then
+            bestrssi = v.rssi
+            bestbssid = bssid
+        end
+    end
+
+    return bestbssid
+end
+
 
 --[[Checks if the bssid given is contained in bssidlist.  If bssidlist is nil, always returns true.]]
 function bssidapproved(bssid)
@@ -72,7 +121,9 @@ function getmatchingaps(t)
         local ssid, rssi, authmode, channel = string.match(v, "([^,]+),([^,]+),([^,]+),([^,]*)")
 
         if apmatches(bssid, ssid, rssi, authmode, channel) then
-            available[bssid] = ssid
+            available[bssid] = {}
+            available[bssid].ssid = ssid
+            available[bssid].rssi = tonumber(rssi)
         end
     end
 end
@@ -83,35 +134,15 @@ end
     start another AP scan.
     ]]
 function chooseavailableap()
-    local apset = {}	-- an array of AP BSSIDs
-    local count = 0
 
-    --get list of BSSIDs from available (and count them)
-    for bssid, ssid in pairs(available) do
-        count = count + 1
-        apset[count] = bssid
-    end
+    local selectedbssid = selector()
 
-    if count > 1 then
-        --select randomly
-        select = math.random(1, count)
-    elseif count == 1 then
-        --select only AP available
-        select = 1
-    elseif count == 0 then
-        print("No RIOT access points found...")
-        --start retry timer
-        tmr.alarm(wifitmr, retryinterval, tmr.ALARM_SINGLE, wifiscan)
-        wifiretries = wifiretries + 1
-        return
-    end
-
-    print("Connecting to access point: "..available[apset[select]])
+    print("Connecting to access point: "..available[selectedbssid].ssid)
     print(wifi.sta.getconfig())
 
     --Connect if there is a valid AP available
     if select ~= nil then
-        wifi.sta.config(available[apset[select]], password, 1, apset[select])
+        wifi.sta.config(available[selectedbssid].ssid, password, 1, selectedbssid)
         wifi.sta.connect()
     end
 end
