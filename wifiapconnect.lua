@@ -6,7 +6,7 @@ available = {} -- list of our APs, needed in other wifi files
 local password = "riotwaikato"
 local minrssi = -70	-- minimum signal strength considered acceptable
 local retryinterval = 5000 -- interval between scans for APs when no AP was found
-local wifitmr = 3
+wifitmr = 3
 wifiretries = 0
 
 --[[Prints a nicely formatted list of the table provided by getap().  This handles the new

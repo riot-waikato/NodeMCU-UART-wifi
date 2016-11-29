@@ -1,4 +1,5 @@
 local timeserver_data
+local timeout = 10000
 synced=false
 
 --[[Callback function to run when timestamp data is received.  Experience shows that the timestamp may be split into multiple
@@ -22,6 +23,7 @@ function settime(data)
 
     if lastpacket then
         synced = true
+        tmr.unregister(wifitmr) --we're done with the timer
 
         --set time and print
         rtctime.set(timeserver_data, 0)
@@ -36,14 +38,55 @@ function settime(data)
     end
 end
 
---[[Create a socket to accept timestamp data]]
-function timesync()
-    if hostip ~= nil and synced == 0 then
-         print("Connecting to time server...")
-         timesock = net.createConnection(net.TCP, 0)
-         timesock:on("receive", function(s, data) settime(data) end)
-	 timesock:connect(65053, hostip)
+--[[Callback that runs when the connection to the time server is taking too long to establish or packets have
+    not arrived in a reasonable period of time (defined in the timeout variable).  Closes the socket and attempts
+    to re-establish a connection with the time server on the current host.]]
+function timesync_timeout()
+    print("Connection to time server timed out...")
+    if not timesock == nil then
+        timesock:close()
+    else
+        timesock = net.createConnection(net.TCP, 0)
     end
-    collectgarbage()
+
+    connecttotimeserver(timesock)
 end
 
+--[[Starts the wifi timer to check if the time server is responding in a reasonable period of time.  If the timer is
+    already running, it is reset.]]
+function startwifitmr()
+    --print("Starting wifi timer...")
+    running, mode = tmr.state(wifitmr)
+    if running then
+        tmr.unregister(wifitmr)
+    end
+    if not tmr.alarm(wifitmr, timeout, tmr.ALARM_SINGLE, timesync_timeout) then print("Could not start wifi timer...") end
+end
+
+--[[Connects the given socket to the time server and registers callback functions when the socket connects or receives
+    data.]]
+function connecttotimeserver(socket)
+    if hostip ~= nil and synced == false then
+        print("Connecting to time server...")
+        timesock:on("receive", function(s, data)
+        settime(data)
+        startwifitmr()
+        end)
+        timesock:on("connection", function(s)
+        print("Connected to time server...")
+        startwifitmr()
+        end)
+        timesock:connect(65053, hostip)
+        startwifitmr()
+    else
+        print("Cannot connect to time server...")
+    end
+end
+
+--[[Starts the time syncing process by creating the socket and starting connection to the time server.]]
+function timesync()
+    print("Starting time sync...")
+    timesock = net.createConnection(net.TCP, 0)
+    connecttotimeserver(timesock)
+    collectgarbage()
+end

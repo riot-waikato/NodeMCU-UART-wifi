@@ -2,8 +2,6 @@
 Contains callback functions that occur when the Wifi station status of this device changes.
 ]]
 
-dofile("OpenSend.lua")
-
 function on_sta_idle()
     print("STATION_IDLE")
 end
@@ -37,7 +35,7 @@ function on_sta_gotip()
     print("STATION_GOT_IP")
     print("Wifi connection established...")
     
-    dofile("wifisend.lua")
+    get_ip()
     timesync()
     sendpacket()	-- sends a test packet
     

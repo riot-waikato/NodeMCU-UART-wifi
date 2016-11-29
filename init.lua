@@ -44,11 +44,11 @@ printfile()
 
 print()
 
-dofile("OpenSend.lua")
+dofile("timesync.lua")
 
 --wifi setup
 wifi.setmode(wifi.STATION)
 initWifiMonitor()
 connectWifi()
 
---initUART()
+initUART()

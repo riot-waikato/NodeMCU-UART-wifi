@@ -13,7 +13,6 @@ function sock_connected(sck, c)
 end
 
 function sendman()
-   get_ip()
    if hostip == nil then
       print("-chk")
       sendManagerFlag = nil
