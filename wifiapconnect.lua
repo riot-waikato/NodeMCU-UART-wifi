@@ -6,7 +6,7 @@ available = {} -- list of our APs, needed in other wifi files
 local password = "riotwaikato"
 local minrssi = -70	-- minimum signal strength considered acceptable
 local retryinterval = 5000 -- interval between scans for APs when no AP was found
-wifitmr = 3
+apscantimer = tmr.create()
 wifiretries = 0
 
 --[[Prints a nicely formatted list of the table provided by getap().  This handles the new
@@ -103,8 +103,9 @@ function chooseavailableap()
         select = 1
     elseif count == 0 then
         print("No RIOT access points found...")
+
         --start retry timer
-        tmr.alarm(wifitmr, retryinterval, tmr.ALARM_SINGLE, function() wifiscan() end)
+        tmr.alarm(apscantimer, retryinterval, tmr.ALARM_SINGLE, function() wifiscan() end)
         wifiretries = wifiretries + 1
         return
     end

@@ -1,5 +1,6 @@
 local timeserver_data
 local timeout = 10000
+local timesynctimer
 synced=false
 
 --[[Callback function to run when timestamp data is received.  Experience shows that the timestamp may be split into multiple
@@ -25,7 +26,7 @@ function settime(data)
 
     if lastpacket then
         synced = true
-        tmr.unregister(wifitmr) --we're done with the timer TODO:Doesn't work. Timer continues.
+        timesynctimer:unregister()
 
         --set time and print
         rtctime.set(timeserver_data, 0)
@@ -57,12 +58,17 @@ end
 --[[Starts the wifi timer to check if the time server is responding in a reasonable period of time.  If the timer is
     already running, it is reset.]]
 function startwifitmr()
-    --print("Starting wifi timer...")
-    running, mode = tmr.state(wifitmr)
-    if running then
-        tmr.unregister(wifitmr)
+
+    if timesynctimer == nil then
+        timesynctimer = tmr.create()
     end
-    if not tmr.alarm(wifitmr, timeout, tmr.ALARM_SINGLE, timesync_timeout) then print("Could not start wifi timer...") end
+
+    --print("Starting wifi timer...")
+    running, mode = timesynctimer:state()
+    if running then
+        timesynctimer:unregister()
+    end
+    if not timesynctimer:alarm(timeout, tmr.ALARM_SINGLE, timesync_timeout) then print("Could not start wifi timer...") end
 end
 
 --[[Connects the given socket to the time server and registers callback functions when the socket connects or receives
@@ -71,8 +77,8 @@ function connecttotimeserver(socket)
     if wifi.sta.status() == 5 and synced == false then
         print("Connecting to time server...")
         timesock:on("receive", function(s, data)
-        settime(data)
         startwifitmr()
+        settime(data)
         end)
         timesock:on("connection", function(s)
         print("Connected to time server...")

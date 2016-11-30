@@ -36,6 +36,7 @@ function on_sta_gotip()
     print("Wifi connection established...")
     
     get_ip()
+    synced = false
     timesync()
     sendpacket()	-- sends a test packet
     

@@ -20,7 +20,7 @@ function uart_ondata(data)
        print("Received via UART: "..data)
 
        --check packet type
-       if data:sub(1, 3) == "lux" then
+       if data:sub(-1, 3) == "lux" then
 
            --packet is from light sensor
            set_packet_lux(data)

@@ -37,7 +37,7 @@ selectionscheme.random = function()
     elseif count == 0 then
         print("No RIOT access points found...")
         --start retry timer
-        tmr.alarm(wifitmr, retryinterval, tmr.ALARM_SINGLE, wifiscan)
+        wifitmr:alarm(retryinterval, tmr.ALARM_SINGLE, wifiscan)
         wifiretries = wifiretries + 1
         return nil
     end
