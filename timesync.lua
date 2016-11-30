@@ -19,11 +19,13 @@ function settime(data)
     if timeserver_data == nil then
         timeserver_data = data
     -- concatenate data in case this is not the first packet received
-    else timeserver_data = timeserver_data..data end
+    else
+        timeserver_data = timeserver_data..data
+    end
 
     if lastpacket then
         synced = true
-        tmr.unregister(wifitmr) --we're done with the timer
+        tmr.unregister(wifitmr) --we're done with the timer TODO:Doesn't work. Timer continues.
 
         --set time and print
         rtctime.set(timeserver_data, 0)
@@ -66,7 +68,7 @@ end
 --[[Connects the given socket to the time server and registers callback functions when the socket connects or receives
     data.]]
 function connecttotimeserver(socket)
-    if hostip ~= nil and synced == false then
+    if wifi.sta.status() == 5 and synced == false then
         print("Connecting to time server...")
         timesock:on("receive", function(s, data)
         settime(data)
@@ -79,14 +81,17 @@ function connecttotimeserver(socket)
         timesock:connect(65053, hostip)
         startwifitmr()
     else
+        --will have to wait until connected
         print("Cannot connect to time server...")
     end
 end
 
 --[[Starts the time syncing process by creating the socket and starting connection to the time server.]]
 function timesync()
-    print("Starting time sync...")
-    timesock = net.createConnection(net.TCP, 0)
-    connecttotimeserver(timesock)
-    collectgarbage()
+    if not synced then
+        print("Starting time sync...")
+        timesock = net.createConnection(net.TCP, 0)
+        connecttotimeserver(timesock)
+        collectgarbage()
+    end
 end

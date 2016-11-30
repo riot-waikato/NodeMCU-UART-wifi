@@ -1,3 +1,18 @@
+uarttmr = 2 --checks if it is taking too long to send a packet over wifi
+wifitimeout = 500 --length of time (ms)
+
+--[[If called, a packet could not be transmitted over wifi.]]
+function wifi_timeout()
+    print("-")
+end
+
+--[[If called, a packet was successfully transmitted over wifi.]]
+function wifi_onsent(socket)
+    print("+")
+    tmr.unregister(uarttmr)
+end
+
+
 --[[Runs when UART receives data.  Checks packet type and attempts to send data packets via wifi and
     run commands.]]
 function uart_ondata(data)
@@ -15,8 +30,15 @@ function uart_ondata(data)
                    print("WARNING: Time not synced.")
                end
 
-               sendpacket()
-               print("+") --notify Arduino that packet was sent
+               --start timer in case wifi times out
+               if not tmr.alarm(uarttmr, wifitimeout, tmr.ALARM_SINGLE, wifi_timeout) then
+                   print("Could not start UART timer...")
+               end
+
+               if not sendpacket(wifi_onsent) then
+                   print("-")
+               end
+               --print("+") --notify Arduino that packet was sent
            else
                print("-") --packet could not be sent
            end
