@@ -1,3 +1,4 @@
+--Configuration Options
 local hostport = 65051
 
 packet="test 0x01 2442 1 2 3 4 5 6 5 4 3.14252142\n"

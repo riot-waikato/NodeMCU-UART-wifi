@@ -13,11 +13,6 @@ function help()
    fileToPrint=bak
 end
 
-function timerman()
-  tmr.register(0, 500, 1, sendman)
-  tmr.start(0)
-end
-
 function printfile(str)
     if str ~= nil then fileToPrint = str end
     dofile("printfile.lua")
@@ -45,6 +40,7 @@ printfile()
 print()
 
 dofile("timesync.lua")
+dofile("wifisend.lua")
 
 --wifi setup
 wifi.setmode(wifi.STATION)

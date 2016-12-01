@@ -1,5 +1,8 @@
-local timeserver_data
+--Configuration
 local timeout = 10000
+local timeport = 65053
+
+local timeserver_data
 local timesynctimer
 local timesock
 synced=false
@@ -85,7 +88,7 @@ function connecttotimeserver()
         print("Connected to time server...")
         startwifitmr()
         end)
-        timesock:connect(65053, hostip)
+        timesock:connect(timeport, hostip)
         startwifitmr()
     else
         --will have to wait until connected

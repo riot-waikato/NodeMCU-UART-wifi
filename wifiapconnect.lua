@@ -1,9 +1,11 @@
+--Configuration Options
 --[[The Lua pattern that must be matched by string.find to be a valid IoT network AP.]]
 local ssid_pattern = "riot%-waikato"
-available = {} -- list of our APs, needed in other wifi files
 local password = "riotwaikato"
 local minrssi = -70	-- minimum signal strength considered acceptable
 local retryinterval = 5000 -- interval between scans for APs when no AP was found
+
+available = {} -- list of our APs, needed in other wifi files
 apscantimer = tmr.create()
 wifiretries = 0
 

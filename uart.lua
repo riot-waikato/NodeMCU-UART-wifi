@@ -1,5 +1,8 @@
-uarttmr = tmr.create() --checks if it is taking too long to send a packet over wifi
+--Configuration options
 wifitimeout = 500 --length of time (ms)
+interactive_mode = false
+
+uarttmr = tmr.create() --checks if it is taking too long to send a packet over wifi
 
 --[[If called, a packet could not be transmitted over wifi.]]
 function wifi_timeout()
@@ -67,11 +70,25 @@ function inituart()
    --see if manually configuring uart params helps at all
     print("Initializing UART...")
 
-    --The default baud rate for ESP boards is 115200
-    uart.setup(0, 115200, 8, uart.PARITY_NONE, uart.STOPBITS_1, 0)
+    local baud_rate
+    if interactive_mode then
+        baud_rate = 115200
+    else
+        baud_rate = 9600
+    end
+    uart.setup(0, baud_rate, 8, uart.PARITY_NONE, uart.STOPBITS_1, 0)
 
-    --set callback function when data is received
-    uart.on("data", "\n", uart_ondata, 0)
+    --using "\n" as the terminator is useful for interactive debugging but
+    --the Arduino sensor uses a $
+    local uart_term
+    if interactive_mode then
+        uart_term = "\n"
+    else
+        uart_term = "$"
+    end
+
+    --set callback function when data received
+    uart.on("data", uart_term, uart_ondata, 0)
 end
 
 function set_packet(_str) packet = _str:sub(1, -2).."\n" end

@@ -1,5 +1,4 @@
-available = {}			-- list of our APs, needed in other wifi files
-
+--Configuration Options
 
 --[[Requirements for an AP to be considered part of our network and available.  If set to
     nil or false the requirement is ignored (and all functions that check it will return true).
@@ -8,15 +7,14 @@ available = {}			-- list of our APs, needed in other wifi files
 local minrssi = -70		-- minimum signal strength considered acceptable
 local ssid_pattern = "riot%-waikato"
 local bssidlist = nil	-- contains approved BSSIDs as keys with value true
-
+local selectionscheme = {}
 local selector = selectionscheme.bestsignal
 
 retryinterval = 5000	-- interval between scans for APs when no AP was found
 
 local password = "riotwaikato"
 
-
-selectionscheme = {}
+available = {}			-- list of our APs, needed in other wifi files
 
 selectionscheme.random = function()
     local apset = {}	-- an array of AP BSSIDs
