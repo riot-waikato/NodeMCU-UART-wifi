@@ -1,6 +1,7 @@
 local timeserver_data
 local timeout = 10000
 local timesynctimer
+local timesock
 synced=false
 
 --[[Callback function to run when timestamp data is received.  Experience shows that the timestamp may be split into multiple
@@ -29,7 +30,7 @@ function settime(data)
         timesynctimer:unregister()
 
         --set time and print
-        rtctime.set(timeserver_data, 0)
+        rtctime.set(tonumber(timeserver_data), 0)
         sec, usec = rtctime.get()
         tm = rtctime.epoch2cal(rtctime.get())
         print(string.format("Time synced: %04d/%02d/%02d %02d:%02d:%02d", tm["year"], tm["mon"], tm["day"], tm["hour"], tm["min"], tm["sec"]))
@@ -73,7 +74,7 @@ end
 
 --[[Connects the given socket to the time server and registers callback functions when the socket connects or receives
     data.]]
-function connecttotimeserver(socket)
+function connecttotimeserver()
     if wifi.sta.status() == 5 and synced == false then
         print("Connecting to time server...")
         timesock:on("receive", function(s, data)

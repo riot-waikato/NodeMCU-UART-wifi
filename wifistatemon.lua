@@ -38,7 +38,7 @@ function on_sta_gotip()
     get_ip()
     synced = false
     timesync()
-    sendpacket()	-- sends a test packet
+    sendpacket(on_sent)	-- sends a test packet
     
 end
 

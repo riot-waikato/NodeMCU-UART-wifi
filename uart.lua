@@ -1,4 +1,4 @@
-uarttmr = 2 --checks if it is taking too long to send a packet over wifi
+uarttmr = tmr.create() --checks if it is taking too long to send a packet over wifi
 wifitimeout = 500 --length of time (ms)
 
 --[[If called, a packet could not be transmitted over wifi.]]
@@ -20,7 +20,8 @@ function uart_ondata(data)
        print("Received via UART: "..data)
 
        --check packet type
-       if data:sub(-1, 3) == "lux" then
+       if data:sub(1, 3) == "lux" then
+           print("Packet is data packet...")
 
            --packet is from light sensor
            set_packet_lux(data)
@@ -31,22 +32,27 @@ function uart_ondata(data)
                end
 
                --start timer in case wifi times out
-               if not tmr.alarm(uarttmr, wifitimeout, tmr.ALARM_SINGLE, wifi_timeout) then
+               if not uarttmr:alarm(wifitimeout, tmr.ALARM_SINGLE, wifi_timeout) then
                    print("Could not start UART timer...")
                end
 
                if not sendpacket(wifi_onsent) then
                    print("-")
+               else
+                   print("Sending packet: "..packet)
                end
                --print("+") --notify Arduino that packet was sent
            else
                print("-") --packet could not be sent
            end
        else
+           print("Packet is command packet...")
            --packet is command (required to debug interactively)
            cmd = loadstring(data)
            if cmd then
                cmd()
+           else
+               print("Invalid command...")
            end
        end
        

@@ -17,26 +17,6 @@ function sock_connected(sck, c)
     sck:send(packet, on_sent)
 end
 
-function sendman()
-   if hostip == nil then
-      print("-chk")
-      sendManagerFlag = nil
-      --tmr.unregister(0)
-      do return end
-   else
-      sendManagerFlag = 1
-      if chk == 1 then
-      print("+chk")
-        --if ready == 1 then
-	  sendtest()
-	  --ready=0
-	--end
-      else
-        sendpacket()
-      end
-   end
-end
-
 
 --[[Opens a socket and registers callback functions.  The argument is called when the current packet
     has been sent.]]
@@ -70,6 +50,10 @@ function initsocket(callback)
                 connected = false
             end)
 
+            socket:on("receive", function(sck, c)
+                print("Socket received: "..c)
+            end)
+
             socket:connect(hostport, hostip)
         end
     end
@@ -78,17 +62,34 @@ end
 --[[Sends a packet containing the string in the 'packet' global variable.  Takes a callback argument to
     notify of successful send of a packet.  Returns true if the packet was sent through the socket and
     false if there is an IO error.
+
+    NOTE: Currently sets up the socket every time a packet is sent as this is
+    required by the database receiver.
 ]]
 function sendpacket(callback)
+
+    if socket then
+        socket:close()
+    end
+    socket = nil
 
     packetsent = false
 
     print("Sending via Wifi: "..packet)
 
     if not socket then
-        initsocket()
+        initsocket(callback)
+
+        --confirm socket open
+        if socket then
+            return true
+        else
+            return false
+        end
     end
 
+    --nothing below here runs because the socket is not persistent but this may
+    --change in future
     if socket then
         socket:send(packet, function(sck, c)
             packetsent = true

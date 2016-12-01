@@ -1,7 +1,5 @@
---[[The Lua pattern that must be matched by string.find to be a valid IoT network AP.
-    NOTE: Currently, using an escaped '-' dash character such as: riot\-waikato means that the
-    phrase does not get matched.]]
-local ssid_pattern = "riot"
+--[[The Lua pattern that must be matched by string.find to be a valid IoT network AP.]]
+local ssid_pattern = "riot%-waikato"
 available = {} -- list of our APs, needed in other wifi files
 local password = "riotwaikato"
 local minrssi = -70	-- minimum signal strength considered acceptable
