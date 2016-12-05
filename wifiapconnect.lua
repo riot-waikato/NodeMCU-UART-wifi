@@ -37,7 +37,11 @@ end
 local function do_onscancomplete(t)
 
     print("Scanning complete...")
-    printaps(t)
+
+    --printing the APs at a lower baud rate sets of the watchdog reset
+    if interactive_mode then
+        printaps(t)
+    end
 
     available = {}
     for bssid,v in pairs(t) do
@@ -54,7 +58,10 @@ local function do_onscancomplete(t)
         end
     end
     
-    printmatchingaps()
+    --printing the APs at a lower baud rate sets off the watchdog reset
+    if interactive_mode then
+        printmatchingaps()
+    end
     return chooseavailableap()
 end	-- function do_onscancomplete
 
@@ -118,6 +125,8 @@ function chooseavailableap()
         wifi.sta.config(available[apset[select]], password, 0, apset[select])
         wifi.sta.connect()
     end
+
+    collectgarbage()
 end
 
 

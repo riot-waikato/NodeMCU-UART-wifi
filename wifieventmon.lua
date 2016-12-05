@@ -9,7 +9,9 @@ function handledc(reason)
 
 end
 
-dofile("wifistatusvalues.lua")
+if file.exists("wifistatusvalues.lua") then
+    dofile("wifistatusvalues.lua")
+end
 
 -- Registers all wifi event callbacks with functions that write to the log file
 function registerevents()

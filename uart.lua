@@ -72,9 +72,9 @@ function inituart()
 
     local baud_rate
     if interactive_mode then
-        baud_rate = 115200
+        baud_rate = 115200 --baud rate that error messages are transmitted in
     else
-        baud_rate = 9600
+        baud_rate = 9600 --baud rate that Arduino sensor uses
     end
     uart.setup(0, baud_rate, 8, uart.PARITY_NONE, uart.STOPBITS_1, 0)
 
@@ -89,6 +89,8 @@ function inituart()
 
     --set callback function when data received
     uart.on("data", uart_term, uart_ondata, 0)
+
+    collectgarbage()
 end
 
 function set_packet(_str) packet = _str:sub(1, -2).."\n" end
@@ -96,6 +98,5 @@ function set_packet_lux(_str)
   sec, usec = rtctime.get()
   packet = _str:sub(1, -2).."1"..sec.."\n" --packet structure for lux: 
 end
-
 
 inituart()

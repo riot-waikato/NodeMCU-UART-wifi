@@ -2,6 +2,9 @@
 Contains callback functions that occur when the Wifi station status of this device changes.
 ]]
 
+dofile("timesync.lua")
+dofile("wifisend.lua")
+
 function on_sta_idle()
     print("STATION_IDLE")
 end
