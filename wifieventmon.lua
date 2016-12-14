@@ -1,6 +1,12 @@
 
+if not dcreason_tostr then
+    dcreason_tostr = function(reason)
+        return reason
+    end
+end
+
 --[[Examine the disconnection reason and respond appropriately.]]
-function handledc(reason)
+local function handledc(reason)
 
     -- Scan for APs and start process again
     if reason == wifi.eventmon.reason.NO_AP_FOUND then
@@ -14,7 +20,7 @@ if file.exists("wifistatusvalues.lua") then
 end
 
 -- Registers all wifi event callbacks with functions that write to the log file
-function registerevents()
+local function registerevents()
     wifi.eventmon.register(wifi.eventmon.STA_CONNECTED, function(T) 
         print(rtctime.get().."\n\tSTA - CONNECTED".."\n\tSSID: "..T.SSID.."\n\tBSSID: "..
         T.BSSID.."\n\tChannel: "..T.channel)

@@ -1,31 +1,31 @@
-function pad(str, len, char)
+local function pad(str, len, char)
     if char == nil then char = ' ' end
     return str .. string.rep(char, len - #str)
 end
 
-function list() dofile("list.lua") end
-function globals() dofile("globals.lua") end
+local function list() dofile("list.lua") end
+local function globals() dofile("globals.lua") end
 
-function help()
+local function help()
    bak=fileToPrint
    fileToPrint='help.txt'
    printfile(fileToPrint)
    fileToPrint=bak
 end
 
-function printfile(str)
+local function printfile(str)
     if str ~= nil then fileToPrint = str end
     dofile("printfile.lua")
 end
 
-function connectWifi() dofile("wifiapconnect.lua") end
+local function connectWifi() dofile("wifiapconnect.lua") end
 
-function initWifiMonitor()
+local function initWifiMonitor()
     dofile("wifieventmon.lua")
     dofile("wifistatemon.lua")
 end
 
-function initUART()
+local function initUART()
     dofile("uart.lua")
 end
 
@@ -39,8 +39,8 @@ printfile()
 
 print()
 
-dofile("timesync.lua")
-dofile("wifisend.lua")
+--dofile("timesync.lua")
+--dofile("wifisend.lua")
 
 --wifi setup
 wifi.setmode(wifi.STATION)

@@ -7,7 +7,7 @@
 --]]
 
 --wifi.sta.status()
-function wifistatus_tostr(value)
+local function wifistatus_tostr(value)
     local wifistatus = {}
     wifistatus[1]="STA_IDLE"
     wifistatus[2]="STA_CONNECTING"
@@ -19,7 +19,7 @@ function wifistatus_tostr(value)
 end
 
 --wifi disconnect reasons
-function dcreason_tostr(value)
+local function dcreason_tostr(value)
     local reason = {}
     reason[1] = "UNSPECIFIED"
     reason[2] = "AUTH_EXPIRE"

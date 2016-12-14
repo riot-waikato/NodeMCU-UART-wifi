@@ -10,18 +10,18 @@ local connected = false
 chk=0
 ready=0
 
-function on_sent(sent)
+local function on_sent(sent)
     print("Sent test packet...")
 end
 
-function sock_connected(sck, c)
+local function sock_connected(sck, c)
     sck:send(packet, on_sent)
 end
 
 
 --[[Opens a socket and registers callback functions.  The argument is called when the current packet
     has been sent.]]
-function initsocket(callback)
+local function initsocket(callback)
     if not socket then
         print("Opening socket...")
 

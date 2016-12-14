@@ -1,8 +1,8 @@
 --Configuration Options
 --[[The Lua pattern that must be matched by string.find to be a valid IoT network AP.]]
-local ssid_pattern = "riot%-waikato"
-local password = "riotwaikato"
-local minrssi = -70	-- minimum signal strength considered acceptable
+ssid_pattern = "riot%-waikato"
+password = "riotwaikato"
+minrssi = -70	-- minimum signal strength considered acceptable
 local retryinterval = 5000 -- interval between scans for APs when no AP was found
 
 available = {} -- list of our APs, needed in other wifi files
@@ -12,7 +12,7 @@ wifiretries = 0
 --[[Prints a nicely formatted list of the table provided by getap().  This handles the new
     version of the table.
     ]]
-function printaps(t)
+local function printaps(t)
     print("Available access points:")
     print("\n\t\t\tSSID\t\t\t\t\tBSSID\t\t\t  RSSI\t\tAUTHMODE\t\tCHANNEL")
     for bssid,v in pairs(t) do
@@ -21,6 +21,27 @@ function printaps(t)
     end
 end
 
+
+--[[Counts the number of BSSID/SSID pairs held in the available global variable.
+]]
+local function countmatchingaps()
+    local count = 0;
+    for x, y in pairs(available) do
+        count = count + 1
+    end
+    return count
+end
+
+
+--[[Prints a status message with the number of APs held in the available global variable
+    then prints them.
+    ]]
+local function printmatchingaps()
+    print("Found "..countmatchingaps().." matching APs...")
+    for bssid, ssid in pairs(available) do
+        print(ssid, bssid)
+    end
+end
 
 
 --[[The callback function for when a Wifi scan completes.  Each AP's SSID is checked against
@@ -51,7 +72,9 @@ local function do_onscancomplete(t)
         if string.find(ssid, ssid_pattern) then
 
             if tonumber(rssi) > minrssi then
-                available[bssid] = ssid
+		available[bssid] = {}
+                available[bssid].ssid = ssid
+		available[bssid].rssi = tonumber(rssi)
             else
                 print("Signal strength of "..ssid.. " too poor to connect...")
             end
@@ -62,39 +85,14 @@ local function do_onscancomplete(t)
     if interactive_mode then
         printmatchingaps()
     end
-    return chooseavailableap()
+    dofile("wifiapselection.lua")
 end	-- function do_onscancomplete
-
-
-
---[[Counts the number of BSSID/SSID pairs held in the available global variable.
-]]
-function countmatchingaps()
-    local count = 0;
-    for x, y in pairs(available) do
-        count = count + 1
-    end
-    return count
-end
-
-
-
---[[Prints a status message with the number of APs held in the available global variable
-    then prints them.
-    ]]
-function printmatchingaps()
-    print("Found "..countmatchingaps().." matching APs...")
-    for bssid, ssid in pairs(available) do
-        print(ssid, bssid)
-    end
-end
-
 
 
 --[[Chooses an available AP to connect this device to.  Current algorithm chooses a
     random AP out of those available.
     ]]
-function chooseavailableap()
+local function chooseavailableap()
     local apset = {}
     local count = 0
 
@@ -133,9 +131,9 @@ end
 
 --[[Get ip, netmask and gateway address.
     ]]
-function get_ip() ip, nm, hostip = wifi.sta.getip() end
+local function get_ip() ip, nm, hostip = wifi.sta.getip() end
 
-function wifiscan()
+local function wifiscan()
     if wifiretries > 0 then
         print("Attempt "..wifiretries)
     end

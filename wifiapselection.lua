@@ -4,17 +4,13 @@
     nil or false the requirement is ignored (and all functions that check it will return true).
 
     Created because the selection of an appropriate AP may need to be more robust in future.]]
-local minrssi = -70		-- minimum signal strength considered acceptable
-local ssid_pattern = "riot%-waikato"
-local bssidlist = nil	-- contains approved BSSIDs as keys with value true
+ssid_pattern = "riot%-waikato"
+bssidlist = nil	-- contains approved BSSIDs as keys with value true
 local selectionscheme = {}
-local selector = selectionscheme.bestsignal
 
 retryinterval = 5000	-- interval between scans for APs when no AP was found
 
 local password = "riotwaikato"
-
-available = {}			-- list of our APs, needed in other wifi files
 
 selectionscheme.random = function()
     local apset = {}	-- an array of AP BSSIDs
@@ -47,6 +43,8 @@ selectionscheme.bestsignal = function()
     local bestrssi = minrssi
     local bestbssid = nil
     for bssid, v in pairs(available) do
+        print("v.rssi = "..v.rssi)
+	print("bestrssi = "..bestrssi)
         if v.rssi > bestrssi then
             bestrssi = v.rssi
             bestbssid = bssid
@@ -56,9 +54,8 @@ selectionscheme.bestsignal = function()
     return bestbssid
 end
 
-
 --[[Checks if the bssid given is contained in bssidlist.  If bssidlist is nil, always returns true.]]
-function bssidapproved(bssid)
+local function bssidapproved(bssid)
     if bssidlist then
         return bssidlist[bssid]
     else
@@ -68,7 +65,7 @@ end
 
 
 --[[Checks that the given ssid matches the pattern.  If pattern is nil, always returns true.]]
-function ssidpatternmatches(ssid)
+local function ssidpatternmatches(ssid)
     if ssid_pattern then
         return string.find(ssid, ssid_pattern)
     else
@@ -79,7 +76,7 @@ end
 
 
 --[[Checks that the given rssi is better than minrssi.  If minrssi is nil, always returns true.]]
-function rssiacceptable(rssi)
+local function rssiacceptable(rssi)
     if minrssi then
         return tonumber(rssi) >= minrssi
     else
@@ -90,7 +87,7 @@ end
 
 --[[Checks that all requirements are met for the AP to considered in our network and
     available.]]
-function apmatches(bssid, ssid, rssi, authmode, channel)
+local function apmatches(bssid, ssid, rssi, authmode, channel)
     if not bssidapproved(bssid) then
         return false
     end
@@ -111,7 +108,7 @@ end
 --[[Using the table provided to the do_onscancomplete callback function, find APs that match
     our network using the SSID pattern.  Does not include APs if their signal strength is too
     low.  Stores APs that match in the 'available' table with BSSID as the key.]]
-function getmatchingaps(t)
+local function getmatchingaps(t)
 
     available = {}
 
@@ -126,12 +123,13 @@ function getmatchingaps(t)
     end
 end
 
+selector = selectionscheme.bestsignal
 
 --[[Chooses an available AP to connect this device to.  Current algorithm chooses a
     random AP out of those available.  If no AP is available, sets an alarm which will
     start another AP scan.
     ]]
-function chooseavailableap()
+local function chooseavailableap()
 
     local selectedbssid = selector()
 
@@ -144,3 +142,5 @@ function chooseavailableap()
         wifi.sta.connect()
     end
 end
+
+chooseavailableap()

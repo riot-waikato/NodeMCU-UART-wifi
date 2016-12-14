@@ -2,18 +2,17 @@
 Contains callback functions that occur when the Wifi station status of this device changes.
 ]]
 
-dofile("timesync.lua")
 dofile("wifisend.lua")
 
-function on_sta_idle()
+local function on_sta_idle()
     print("STATION_IDLE")
 end
 
-function on_sta_connecting()
+local function on_sta_connecting()
     print("STATION_CONNECTING")
 end
 
-function on_sta_wrongpwd()
+local function on_sta_wrongpwd()
     print("STATION_WRONG_PASSWORD")
 
     --Remove AP that device doesn't have correct password for
@@ -26,22 +25,21 @@ function on_sta_wrongpwd()
     chooseavailableap()
 end
 
-function on_sta_apnotfound()
+local function on_sta_apnotfound()
     print("STATION_NO_AP_FOUND")
 end
 
-function on_sta_fail()
+local function on_sta_fail()
     print("STATION_CONNECT_FAIL")
 end
 
-function on_sta_gotip()
+local function on_sta_gotip()
     print("STATION_GOT_IP")
     print("Wifi connection established...")
     
-    get_ip()
+    dofile("timesync.lua")
     synced = false
     timesync()
-    sendpacket(on_sent)	-- sends a test packet
     
 end
 
@@ -49,7 +47,7 @@ end
 --[[
 Register the callback functions.
 ]]
-function initSTAcallbacks()
+local function initSTAcallbacks()
     --register callback
     wifi.sta.eventMonReg(wifi.STA_IDLE, on_sta_idle)
     wifi.sta.eventMonReg(wifi.STA_CONNECTING, on_sta_connecting)

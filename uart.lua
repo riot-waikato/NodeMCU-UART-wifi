@@ -4,23 +4,45 @@ interactive_mode = false
 
 uarttmr = tmr.create() --checks if it is taking too long to send a packet over wifi
 
+ledtmr = tmr.create()
+
+local function turnledoff()
+    gpio.write(1, gpio.LOW)
+end
+
 --[[If called, a packet could not be transmitted over wifi.]]
-function wifi_timeout()
+local function wifi_timeout()
     print("-")
+    gpio.write(1, gpio.HIGH)
+
+    -- turn LED on
+    ledtmr:alarm(250, tmr.ALARM_SINGLE, turnledoff)
 end
 
 --[[If called, a packet was successfully transmitted over wifi.]]
-function wifi_onsent(socket)
+local function wifi_onsent(socket)
     print("+")
     tmr.unregister(uarttmr)
+    gpio.write(1, gpio.HIGH)
+
+    -- turn LED on
+    ledtmr:alarm(750, tmr.ALARM_SINGLE, turnledoff)
 end
 
+local function set_packet(_str) packet = _str:sub(1, -2).."\n" end
+
+local function set_packet_lux(_str) 
+  sec, usec = rtctime.get()
+  packet = _str:sub(1, -2).."1"..sec.."\n" --packet structure for lux: 
+end
 
 --[[Runs when UART receives data.  Checks packet type and attempts to send data packets via wifi and
     run commands.]]
-function uart_ondata(data)
+local function uart_ondata(data)
 
        print("Received via UART: "..data)
+       gpio.write(1, gpio.HIGH)
+       ledtmr:alarm(500, tmr.ALARM_SINGLE, turnledoff)
 
        --check packet type
        if data:sub(1, 3) == "lux" then
@@ -63,7 +85,7 @@ function uart_ondata(data)
 end
 
 
-function inituart() 
+local function inituart() 
    --uncomment to use altarnate UART pins (gpio13/15)
    --uart.alt(1)
 
@@ -80,23 +102,12 @@ function inituart()
 
     --using "\n" as the terminator is useful for interactive debugging but
     --the Arduino sensor uses a $
-    local uart_term
-    if interactive_mode then
-        uart_term = "\n"
-    else
-        uart_term = "$"
-    end
+    local uart_term = "\n"
 
     --set callback function when data received
     uart.on("data", uart_term, uart_ondata, 0)
 
     collectgarbage()
-end
-
-function set_packet(_str) packet = _str:sub(1, -2).."\n" end
-function set_packet_lux(_str) 
-  sec, usec = rtctime.get()
-  packet = _str:sub(1, -2).."1"..sec.."\n" --packet structure for lux: 
 end
 
 inituart()

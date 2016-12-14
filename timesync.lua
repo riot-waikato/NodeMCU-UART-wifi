@@ -2,7 +2,7 @@
 local timeout = 10000
 local timeport = 65053
 
-local timeserver_data
+timeserver_data = 0
 local timesynctimer
 local timesock
 synced=false
@@ -10,7 +10,7 @@ synced=false
 --[[Callback function to run when timestamp data is received.  Experience shows that the timestamp may be split into multiple
     packets so this concatenates received data in the timeserver_data variable.  The final packet is terminated with a new-line
     character.]]
-function settime(data)
+local function settime(data)
 
     local dataend = -1	--index that data ends (just for printing)
     local lastpacket = false
@@ -48,7 +48,7 @@ end
 --[[Callback that runs when the connection to the time server is taking too long to establish or packets have
     not arrived in a reasonable period of time (defined in the timeout variable).  Closes the socket and attempts
     to re-establish a connection with the time server on the current host.]]
-function timesync_timeout()
+local function timesync_timeout()
     print("Connection to time server timed out...")
     if not timesock == nil then
         timesock:close()
@@ -61,7 +61,7 @@ end
 
 --[[Starts the wifi timer to check if the time server is responding in a reasonable period of time.  If the timer is
     already running, it is reset.]]
-function startwifitmr()
+local function startwifitmr()
 
     if timesynctimer == nil then
         timesynctimer = tmr.create()
@@ -78,6 +78,7 @@ end
 --[[Connects the given socket to the time server and registers callback functions when the socket connects or receives
     data.]]
 function connecttotimeserver()
+    timeserver_data = nil
     if wifi.sta.status() == 5 and synced == false then
         print("Connecting to time server...")
         timesock:on("receive", function(s, data)
@@ -88,6 +89,7 @@ function connecttotimeserver()
         print("Connected to time server...")
         startwifitmr()
         end)
+	null, null, hostip = wifi.sta.getip()
         timesock:connect(timeport, hostip)
         startwifitmr()
     else
